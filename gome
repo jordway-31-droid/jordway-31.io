@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>shark games</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+color:white;
+text-align:center;
+overflow-x:hidden;
+background:linear-gradient(-45deg,#0f2027,#203a43,#2c5364,#141e30);
+background-size:400% 400%;
+animation:gradientMove 12s ease infinite;
+}
+
+@keyframes gradientMove{
+0%{background-position:0% 50%;}
+50%{background-position:100% 50%;}
+100%{background-position:0% 50%;}
+}
+
+/* particles canvas */
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:-1;
+}
+
+/* title */
+
+h1{
+margin-top:60px;
+font-size:40px;
+text-shadow:0 0 15px rgba(0,255,255,0.7);
+}
+
+/* search bar */
+
+.search-box{
+position:fixed;
+top:20px;
+right:20px;
+}
+
+#search{
+padding:10px;
+width:200px;
+border-radius:8px;
+border:none;
+background:rgba(255,255,255,0.15);
+color:white;
+}
+
+#suggestions{
+position:absolute;
+top:40px;
+right:0;
+width:200px;
+background:rgba(20,30,40,0.95);
+border-radius:8px;
+display:none;
+}
+
+.suggestion{
+padding:10px;
+cursor:pointer;
+}
+
+.suggestion:hover{
+background:rgba(0,255,255,0.2);
+}
+
+/* game buttons */
+
+.game-list{
+display:flex;
+flex-direction:column;
+align-items:center;
+margin-top:40px;
+padding-bottom:50px;
+}
+
+.btn{
+width:260px;
+margin:12px;
+padding:15px;
+font-size:18px;
+background:rgba(255,255,255,0.1);
+color:white;
+border:2px solid rgba(0,255,255,0.6);
+border-radius:10px;
+cursor:pointer;
+transition:.25s;
+}
+
+.btn:hover{
+transform:scale(1.05);
+box-shadow:0 0 15px rgba(0,255,255,0.8);
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="particles"></canvas>
+
+<h1>shark games 1.5.1</h1>
+
+<div class="search-box">
+<input id="search" placeholder="Search games..." onkeyup="showSuggestions()">
+<div id="suggestions"></div>
+</div>
+
+<div class="game-list">
+
+<button class="btn" onclick="goTo('playtropolis.html')">playtropolis</button>
+<button class="btn" onclick="goTo('krunker.html')">krunker</button>
+<button class="btn" onclick="goTo('ghub.html')">ghub</button>
+<button class="btn" onclick="goTo('arcadrome.html')">arcadrome</button>
+<button class="btn" onclick="goTo('victorypoint.html')">victorypoint</button>
+<button class="btn" onclick="goTo('territorial.html')">territorial</button>
+<button class="btn" onclick="goTo('hahagames.html')">hahagames</button>
+<button class="btn" onclick="goTo('freezenova.html')">freezenova</button>
+<button class="btn" onclick="goTo('fivenights.html')">five nights at epsteins</button>
+
+</div>
+
+<script>
+
+/* game search */
+
+const games=[
+{name:"playtropolis",url:"playtropolis.html"},
+{name:"krunker",url:"krunker.html"},
+{name:"ghub",url:"ghub.html"},
+{name:"arcadrome",url:"arcadrome.html"},
+{name:"victorypoint",url:"victorypoint.html"},
+{name:"territorial",url:"territorial.html"},
+{name:"hahagames",url:"hahagames.html"},
+{name:"freezenova",url:"freezenova.html"},
+{name:"five nights at epsteins",url:"fivenights.html"}
+];
+
+function goTo(url){
+window.location.href=url;
+}
+
+function showSuggestions(){
+
+let input=document.getElementById("search").value.toLowerCase();
+let box=document.getElementById("suggestions");
+
+box.innerHTML="";
+
+if(input===""){
+box.style.display="none";
+return;
+}
+
+let matches=games.filter(g=>g.name.includes(input));
+
+matches.forEach(game=>{
+let div=document.createElement("div");
+div.className="suggestion";
+div.innerText=game.name;
+div.onclick=()=>window.location.href=game.url;
+box.appendChild(div);
+});
+
+box.style.display="block";
+
+}
+
+/* particle background */
+
+const canvas=document.getElementById("particles");
+const ctx=canvas.getContext("2d");
+
+function resizeCanvas(){
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+}
+
+resizeCanvas();
+
+let particles=[];
+
+for(let i=0;i<80;i++){
+particles.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+size:Math.random()*3+1,
+speedX:(Math.random()-0.5),
+speedY:(Math.random()-0.5)
+});
+}
+
+function animate(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+particles.forEach(p=>{
+p.x+=p.speedX;
+p.y+=p.speedY;
+
+if(p.x<0||p.x>canvas.width)p.speedX*=-1;
+if(p.y<0||p.y>canvas.height)p.speedY*=-1;
+
+ctx.fillStyle="rgba(0,255,255,0.9)";
+ctx.beginPath();
+ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+ctx.fill();
+});
+
+/* connect particles */
+
+for(let a=0;a<particles.length;a++){
+for(let b=a;b<particles.length;b++){
+
+let dx=particles[a].x-particles[b].x;
+let dy=particles[a].y-particles[b].y;
+let dist=Math.sqrt(dx*dx+dy*dy);
+
+if(dist<120){
+ctx.strokeStyle="rgba(0,255,255,0.2)";
+ctx.lineWidth=1;
+ctx.beginPath();
+ctx.moveTo(particles[a].x,particles[a].y);
+ctx.lineTo(particles[b].x,particles[b].y);
+ctx.stroke();
+}
+
+}
+}
+
+requestAnimationFrame(animate);
+
+}
+
+animate();
+
+window.addEventListener("resize",resizeCanvas);
+
+</script>
+
+</body>
+</html>
